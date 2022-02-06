@@ -3,6 +3,13 @@ namespace SpriteKind {
     export const ENERGY_ABSORBER = SpriteKind.create()
     export const enemy2 = SpriteKind.create()
 }
+controller.combos.attachCombo("", function () {
+    if (info.score() > 5) {
+        STATUS_BAR_2.value += 300
+    } else {
+        game.splash("NOT ENOUGH GOLD")
+    }
+})
 controller.up.onEvent(ControllerButtonEvent.Pressed, function () {
     animation.runImageAnimation(
     mySprite,
@@ -344,13 +351,6 @@ info.onLifeZero(function () {
 })
 controller.combos.attachCombo("B", function () {
     game.splash("do you want some energy \"Y\" for yes \"N\" for no")
-})
-controller.combos.attachCombo("Y", function () {
-    if (info.score() > 5) {
-        STATUS_BAR_2.value += 300
-    } else {
-        game.splash("NOT ENOUGH GOLD")
-    }
 })
 statusbars.onZero(StatusBarKind.Energy, function (status) {
     STATUS_BAR_2.value = 100
