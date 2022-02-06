@@ -1,6 +1,7 @@
 namespace SpriteKind {
     export const BOSS = SpriteKind.create()
     export const ENERGY_ABSORBER = SpriteKind.create()
+    export const enemy2 = SpriteKind.create()
 }
 controller.up.onEvent(ControllerButtonEvent.Pressed, function () {
     animation.runImageAnimation(
@@ -175,6 +176,9 @@ controller.left.onEvent(ControllerButtonEvent.Pressed, function () {
     true
     )
 })
+info.onCountdownEnd(function () {
+    game.over(false)
+})
 statusbars.onZero(StatusBarKind.Health, function (status) {
     game.over(false)
 })
@@ -334,10 +338,19 @@ controller.down.onEvent(ControllerButtonEvent.Pressed, function () {
     )
 })
 info.onLifeZero(function () {
-    game.reset()
-    statusbar2 = statusbars.create(20, 4, StatusBarKind.Health)
-    statusbar2.attachToSprite(mySprite)
-    statusbar2.value = 50
+    tiles.placeOnRandomTile(mySprite, sprites.castle.tilePath5)
+    game.splash("energy low")
+    info.startCountdown(15)
+})
+controller.combos.attachCombo("B", function () {
+    game.splash("do you want some energy \"Y\" for yes \"N\" for no")
+})
+controller.combos.attachCombo("Y", function () {
+    if (info.score() > 5) {
+        STATUS_BAR_2.value += 300
+    } else {
+        game.splash("NOT ENOUGH GOLD")
+    }
 })
 statusbars.onZero(StatusBarKind.Energy, function (status) {
     STATUS_BAR_2.value = 100
@@ -384,17 +397,23 @@ controller.combos.attachCombo("A+B", function () {
     STATUS_BAR_2.value += -50
     PROJECTILE_STRIKETHROUGH.startEffect(effects.spray)
 })
-sprites.onOverlap(SpriteKind.BOSS, SpriteKind.Player, function (sprite, otherSprite) {
-    statusbar2.value += -1
-})
 let mySprite2: Sprite = null
 let mySprite3: Sprite = null
 let PROJECTILE_STRIKETHROUGH: Sprite = null
-let statusbar2: StatusBarSprite = null
 let projectile: Sprite = null
 let STATUS_BAR_2: StatusBarSprite = null
 let statusbar: StatusBarSprite = null
 let mySprite: Sprite = null
+game.setDialogCursor(img`
+    . . . b b b . . 
+    . . b 5 5 5 b . 
+    . b 5 d 3 d 5 b 
+    . b 5 1 5 3 5 b 
+    . c d 1 5 3 5 c 
+    . c d d 1 d 5 c 
+    . . f d d d f . 
+    . . . f f f . . 
+    `)
 tiles.setTilemap(tilemap`level1`)
 info.setLife(3)
 mySprite = sprites.create(img`
@@ -415,16 +434,37 @@ mySprite = sprites.create(img`
     . . . . . f f f f f f . . . . . 
     . . . . . f f . . f f . . . . . 
     `, SpriteKind.Player)
+let mySprite4 = sprites.create(img`
+    1221111111111111122f
+    21111211211111112112
+    21111211211221112112
+    12111222212112112221
+    11211211212112112111
+    22111211211221112111
+    ffffffffffffffffffff
+    ffffffffffffffffffff
+    ffff444fff444fff444f
+    fff45554f45554f45554
+    fff44544f44544f44544
+    fff45454f45454f45454
+    fff45454f45454f45454
+    fff45454f45454f45454
+    fff45454f45454f45454
+    ffff444fff444fff444f
+    `, SpriteKind.Player)
+tiles.placeOnTile(mySprite4, tiles.getTileLocation(14, 1))
 scene.cameraFollowSprite(mySprite)
 controller.moveSprite(mySprite)
 statusbar = statusbars.create(20, 4, StatusBarKind.Health)
 STATUS_BAR_2 = statusbars.create(20, 4, StatusBarKind.Energy)
 STATUS_BAR_2.value = 100
 statusbar.attachToSprite(mySprite)
-STATUS_BAR_2.attachToSprite(mySprite, -40, 0)
+STATUS_BAR_2.attachToSprite(mySprite)
 STATUS_BAR_2.positionDirection(CollisionDirection.Right)
 statusbar.setBarBorder(1, 1)
-game.onUpdateInterval(5000, function () {
+statusbar.max = 500
+statusbar.value = 500
+game.onUpdateInterval(1000, function () {
     mySprite3 = sprites.create(img`
         .....ffffff.............................
         ....f111111f............................
@@ -466,7 +506,7 @@ game.onUpdateInterval(5000, function () {
         ........................................
         ........................................
         ........................................
-        `, SpriteKind.BOSS)
+        `, SpriteKind.enemy2)
     mySprite3.follow(mySprite, 50)
 })
 game.onUpdateInterval(1000, function () {
